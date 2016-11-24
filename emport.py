@@ -17,12 +17,6 @@ class ObjectUtils(object):
             return False
 
     @staticmethod
-    def is_an_instance_that_derived_of(obj, possible_parent_class):
-        if hasattr(obj,'__class__') and hasattr(obj.__class__, "__bases__"):
-            return possible_parent_class in inspect.getmro(obj.__class__)
-        return False
-
-    @staticmethod
     def get_properties(obj):
         def filter(x):
             return not isinstance(x, Callable)
@@ -142,7 +136,7 @@ def dynamic_all(init_file_path):
     """
     return a list of all the py files in a dir
     usage (in __init__.py file) :
-        from lib.emport import dynamic_all
+        from emport import dynamic_all
         __all__ = dynamic_all(__file__)
     """
     modules = glob.glob(os.path.join(os.path.dirname(init_file_path), "*.py*"))

@@ -1,8 +1,9 @@
+import collections
 import os
 import glob
 import inspect
 import sys
-from collections import Callable
+import collections
 
 __author__ = 'orw'
 
@@ -19,7 +20,7 @@ class ObjectUtils(object):
     @staticmethod
     def get_properties(obj):
         def filter(x):
-            return not isinstance(x, Callable)
+            return not isinstance(x, collections.Callable)
         return {k: v for k, v in inspect.getmembers(obj, filter) if not k.startswith("__")}
 
     @staticmethod
@@ -87,7 +88,7 @@ def get_caller_module(depth=0):
     :return: the module object of the caller function (in set stack depth)
     """
     with PyFrame() as frame:
-        for i in xrange(0, depth):
+        for i in range(0, depth):
             frame = frame.f_back
         return sys.modules[frame.f_globals["__name__"]]
 
@@ -105,7 +106,7 @@ def get_caller(depth=0):
     :return: the frame object of the caller function (in set stack depth)
     """
     with PyFrame() as frame:
-        for i in xrange(0, depth):
+        for i in range(0, depth):
             frame = frame.f_back
         return co_to_dict(frame.f_code)
 
@@ -119,8 +120,8 @@ def emport_by_class(from_path, cls, import_items=None):
     :param import_items: the items to import form the package path (can also be ['*'])
     :return: an Emport object with contents filtered according to given cls
     """
-    import_items = import_items or []
-    module_obj = __import__(from_path, globals(), locals(), import_items, -1)
+    import_items = import_items or ["*"]
+    module_obj = __import__(from_path, globals(), locals(), import_items, 0)
     clean_items = ObjectUtils.get_class_members_who_derive_of(module_obj, cls)
     for (sub_name, sub_module) in ObjectUtils.get_members_who_are_instance_of(module_obj, module_obj.__class__):
         results = ObjectUtils.get_class_members_who_derive_of(sub_module, cls)
@@ -131,6 +132,26 @@ def emport_by_class(from_path, cls, import_items=None):
     clean_module = Emport(module_obj, clean_items)
     return clean_module
 
+def emport_objects_by_class(from_path, cls, import_items=None):
+    """
+    Wrap __import__ to import modules and filter only classes deriving from the given cls
+    Return a flat list of objects without the modules themselves
+    :param from_path: dot separated package path
+    :param cls: class to filter import contents by
+    :param import_items: the items to import form the package path (can also be ['*'])
+    :return: an Emport object with contents filtered according to given cls
+    """
+    results = []
+    import_items = import_items or ["*"]
+    module_obj = __import__(from_path, globals(), locals(), import_items, 0)
+    # direct objects
+    clean_items = ObjectUtils.get_class_members_who_derive_of(module_obj, cls)
+    results.extend(clean_items)
+    # nested
+    for (sub_name, sub_module) in ObjectUtils.get_members_who_are_instance_of(module_obj, module_obj.__class__):
+        objects = ObjectUtils.get_class_members_who_derive_of(sub_module, cls)
+        results.extend(objects)
+    return results
 
 def dynamic_all(init_file_path):
     """

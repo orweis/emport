@@ -47,7 +47,7 @@ compatible; no migration is needed.
   `ValueError` and `ModuleNotFoundError`, which these inputs raised before.
 - New optional keyword-only argument `allowed_prefixes` for both functions. It
   restricts imports to an allowlist of packages and is checked before any
-  import happens.
+  import happens. It checks `from_path` only, not `import_items`.
 - Documented that `get_caller` output includes `co_consts` (function
   literals) and should not be logged.
 

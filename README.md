@@ -172,7 +172,10 @@ module it imports, with your process's privileges.
   can import any module on `sys.path`, including modules they planted in a
   writable directory on `sys.path` (such as the current working directory).
 - When the path comes from configuration, pass `allowed_prefixes` to limit
-  imports to your own plugin package(s).
+  imports to your own plugin package(s). The allowlist checks `from_path`
+  only. It does not validate `import_items`, and it cannot stop the allowed
+  package's own code (such as its `__init__`) from importing other modules,
+  so `import_items` must still come from a trusted source.
 - `dynamic_all` lists every module file in the package directory, and
   `from package import *` imports them all. Anyone who can write files into
   that directory can run code in your process, so keep plugin directories

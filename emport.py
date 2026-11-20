@@ -17,7 +17,9 @@ module named by ``from_path``. Importing a module executes its top-level code
 untrusted input (user input, request parameters, config files writable by
 others, database values ...) as ``from_path`` or ``import_items``. Use the
 optional ``allowed_prefixes`` argument to restrict which packages may be
-imported. See the "Security" section of the README for details.
+imported. The allowlist checks ``from_path`` only; ``import_items`` is not
+validated against it and must also be trusted. See the "Security" section of
+the README for details.
 """
 
 from __future__ import annotations
@@ -319,6 +321,7 @@ def emport_by_class(
     :param allowed_prefixes: optional allowlist of package prefixes; if given,
         ``from_path`` must equal one of them or be a submodule of one, else
         :class:`InvalidImportPathError` is raised before anything is imported.
+        Only ``from_path`` is checked; ``import_items`` is not validated.
     :return: an :class:`Emport` with the filtered contents.
     """
     module_obj = _import(from_path, import_items, allowed_prefixes)
